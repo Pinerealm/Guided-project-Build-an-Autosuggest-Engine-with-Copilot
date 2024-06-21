@@ -106,6 +106,49 @@ public class Trie
         return words;
     }
 
+    // Helper method to delete a word from the trie by recursively removing its nodes
+    private bool _delete(string word, TrieNode current, int index)
+    {
+        // If the index is equal to the length of the word
+        if (index == word.Length)
+        {
+            // If the current node does not mark the end of the word
+            if (!current.IsEndOfWord)
+            {
+                // The word does not exist in the trie
+                return false;
+            }
+            // Mark the current node as not the end of the word
+            current.IsEndOfWord = false;
+            // If the current node has no children
+            return current.Children.Count == 0;
+        }
+        char c = word[index];
+        // If the current node does not have the character as a child
+        if (!current.HasChild(c))
+        {
+            // The word does not exist in the trie
+            return false;
+        }
+        TrieNode child = current.Children[c];
+        // Recursively delete the word from the trie
+        bool shouldDeleteCurrentNode = _delete(word, child, index + 1);
+        // If the child node should be deleted
+        if (shouldDeleteCurrentNode)
+        {
+            // Remove the child node from the current node
+            current.Children.Remove(c);
+            // Return true if the current node has no children
+            return current.Children.Count == 0;
+        }
+        return false;
+    }
+
+    public bool Delete(string word)
+    {
+        return _delete(word, root, 0);
+    }
+
     public List<string> GetAllWords()
     {
         return GetAllWordsWithPrefix(root, "");
